@@ -35,7 +35,7 @@
         }
         select {
             margin-bottom: 20px;
-            padding: 8px;
+            padding: 5px;
             font-size: 16px;
         }
     </style>
@@ -49,37 +49,33 @@
 
     <script>
         $(document).ready(function() {
-            const sheetId = '您的Google Sheets ID';
+            const sheetId = '1FHoKkVI47tX4xKpcpv8ttcYjKVsfkb3lhNfgizdZ3LA';
             const sheetName = '查詢個別學員得分';
             const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
-
-            let allData = [];
-            let filterColumn = '';
+            let fullData = [];
 
             Papa.parse(url, {
                 download: true,
                 header: true,
                 complete: function(results) {
-                    allData = results.data;
-                    filterColumn = Object.keys(allData[0])[0];  // 假設B列是第二列
-
-                    // 填充下拉選單
-                    const uniqueValues = [...new Set(allData.map(item => item[filterColumn]))];
-                    uniqueValues.forEach(value => {
-                        $('#filter-select').append(`<option value="${value}">${value}</option>`);
-                    });
-
-                    renderTable(allData);
+                    fullData = results.data;
+                    populateFilterOptions(fullData);
+                    renderTable(fullData);
                 }
             });
 
-            $('#filter-select').on('change', function() {
-                const selectedValue = $(this).val();
-                const filteredData = selectedValue 
-                    ? allData.filter(item => item[filterColumn] === selectedValue)
-                    : allData;
-                renderTable(filteredData);
-            });
+            function populateFilterOptions(data) {
+                const filterColumn = 'B'; // 假設 B 列是要篩選的列
+                const uniqueValues = [...new Set(data.map(row => row[filterColumn]))];
+                const selectElement = $('#filter-select');
+
+                uniqueValues.forEach(value => {
+                    selectElement.append($('<option>', {
+                        value: value,
+                        text: value
+                    }));
+                });
+            }
 
             function renderTable(data) {
                 let tableHtml = '<table><thead><tr>';
@@ -102,6 +98,14 @@
                 tableHtml += '</tbody></table>';
                 $('#table-container').html(tableHtml);
             }
+
+            $('#filter-select').on('change', function() {
+                const selectedValue = $(this).val();
+                const filteredData = selectedValue 
+                    ? fullData.filter(row => row['B'] === selectedValue)
+                    : fullData;
+                renderTable(filteredData);
+            });
         });
     </script>
 </body>
