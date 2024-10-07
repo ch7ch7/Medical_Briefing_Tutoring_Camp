@@ -42,15 +42,15 @@
 </head>
 <body>
     <h1>學員得分查詢</h1>
-    <select id="filter-select">
-        <option value="">全部顯示</option>
+    <select id="name-select">
+        <option value="">選擇姓名</option>
     </select>
     <div id="table-container"></div>
 
     <script>
         $(document).ready(function() {
             const sheetId = '1FHoKkVI47tX4xKpcpv8ttcYjKVsfkb3lhNfgizdZ3LA';
-            const sheetName = '查詢個別學員得分';
+            const sheetName = '査詢個別學員得分';
             const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
             let fullData = [];
 
@@ -59,20 +59,23 @@
                 header: true,
                 complete: function(results) {
                     fullData = results.data;
-                    populateFilterOptions(fullData);
+                    populateNameSelect(fullData);
                     renderTable(fullData);
                 }
             });
 
-            function populateFilterOptions(data) {
-                const filterColumn = 'B'; // 假設 B 列是要篩選的列
-                const uniqueValues = [...new Set(data.map(row => row[filterColumn]))];
-                const selectElement = $('#filter-select');
-
-                uniqueValues.forEach(value => {
+            function populateNameSelect(data) {
+                const nameSet = new Set();
+                data.forEach(row => {
+                    if (row['B'] && row['B'] !== '') {
+                        nameSet.add(row['B']);
+                    }
+                });
+                const selectElement = $('#name-select');
+                nameSet.forEach(name => {
                     selectElement.append($('<option>', {
-                        value: value,
-                        text: value
+                        value: name,
+                        text: name
                     }));
                 });
             }
@@ -99,10 +102,10 @@
                 $('#table-container').html(tableHtml);
             }
 
-            $('#filter-select').on('change', function() {
-                const selectedValue = $(this).val();
-                const filteredData = selectedValue 
-                    ? fullData.filter(row => row['B'] === selectedValue)
+            $('#name-select').on('change', function() {
+                const selectedName = $(this).val();
+                const filteredData = selectedName 
+                    ? fullData.filter(row => row['B'] === selectedName)
                     : fullData;
                 renderTable(filteredData);
             });
