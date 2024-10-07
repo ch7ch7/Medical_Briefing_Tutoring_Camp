@@ -9,7 +9,6 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -20,8 +19,9 @@
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 12px;
+            padding: 8px;
             text-align: left;
+            font-size: 14px;
         }
         th {
             background-color: #f2f2f2;
@@ -38,6 +38,9 @@
             padding: 5px;
             font-size: 16px;
         }
+        .table-container {
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
@@ -45,7 +48,7 @@
     <select id="name-select">
         <option value="">選擇姓名</option>
     </select>
-    <div id="table-container"></div>
+    <div class="table-container" id="table-container"></div>
 
     <script>
         $(document).ready(function() {
@@ -81,6 +84,11 @@
             }
 
             function renderTable(data) {
+                if (data.length === 0) {
+                    $('#table-container').html('<p>沒有符合條件的數據</p>');
+                    return;
+                }
+
                 let tableHtml = '<table><thead><tr>';
                 
                 // 創建表頭
