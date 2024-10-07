@@ -33,44 +33,75 @@
         tr:hover {
             background-color: #f5f5f5;
         }
+        select {
+            margin-bottom: 20px;
+            padding: 8px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <h1>學員得分查詢</h1>
+    <select id="filter-select">
+        <option value="">全部顯示</option>
+    </select>
     <div id="table-container"></div>
 
     <script>
         $(document).ready(function() {
-            const sheetId = '1FHoKkVI47tX4xKpcpv8ttcYjKVsfkb3lhNfgizdZ3LA';
+            const sheetId = '您的Google Sheets ID';
             const sheetName = '查詢個別學員得分';
             const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
+
+            let allData = [];
+            let filterColumn = '';
 
             Papa.parse(url, {
                 download: true,
                 header: true,
                 complete: function(results) {
-                    const data = results.data;
-                    let tableHtml = '<table><thead><tr>';
-                    
-                    // 創建表頭
-                    Object.keys(data[0]).forEach(key => {
-                        tableHtml += `<th>${key}</th>`;
-                    });
-                    tableHtml += '</tr></thead><tbody>';
+                    allData = results.data;
+                    filterColumn = Object.keys(allData[0])[1];  // 假設B列是第二列
 
-                    // 填充數據
-                    data.forEach(row => {
-                        tableHtml += '<tr>';
-                        Object.values(row).forEach(value => {
-                            tableHtml += `<td>${value}</td>`;
-                        });
-                        tableHtml += '</tr>';
+                    // 填充下拉選單
+                    const uniqueValues = [...new Set(allData.map(item => item[filterColumn]))];
+                    uniqueValues.forEach(value => {
+                        $('#filter-select').append(`<option value="${value}">${value}</option>`);
                     });
 
-                    tableHtml += '</tbody></table>';
-                    $('#table-container').html(tableHtml);
+                    renderTable(allData);
                 }
             });
+
+            $('#filter-select').on('change', function() {
+                const selectedValue = $(this).val();
+                const filteredData = selectedValue 
+                    ? allData.filter(item => item[filterColumn] === selectedValue)
+                    : allData;
+                renderTable(filteredData);
+            });
+
+            function renderTable(data) {
+                let tableHtml = '<table><thead><tr>';
+                
+                // 創建表頭
+                Object.keys(data[0]).forEach(key => {
+                    tableHtml += `<th>${key}</th>`;
+                });
+                tableHtml += '</tr></thead><tbody>';
+
+                // 填充數據
+                data.forEach(row => {
+                    tableHtml += '<tr>';
+                    Object.values(row).forEach(value => {
+                        tableHtml += `<td>${value}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                });
+
+                tableHtml += '</tbody></table>';
+                $('#table-container').html(tableHtml);
+            }
         });
     </script>
 </body>
