@@ -59,19 +59,23 @@
 
             Papa.parse(url, {
                 download: true,
-                header: true,
                 complete: function(results) {
-                    fullData = results.data;
+                    fullData = processData(results.data);
                     populateNameSelect(fullData);
                     renderTable(fullData);
                 }
             });
 
+            function processData(data) {
+                // 只保留到L列
+                return data.map(row => row.slice(0, 12));
+            }
+
             function populateNameSelect(data) {
                 const nameSet = new Set();
-                data.forEach(row => {
-                    if (row['B'] && row['B'] !== '') {
-                        nameSet.add(row['B']);
+                data.slice(3).forEach(row => {
+                    if (row[1] && row[1] !== '') {
+                        nameSet.add(row[1]);
                     }
                 });
                 const selectElement = $('#name-select');
@@ -89,19 +93,29 @@
                     return;
                 }
 
-                let tableHtml = '<table><thead><tr>';
+                let tableHtml = '<table>';
                 
-                // 創建表頭
-                Object.keys(data[0]).forEach(key => {
-                    tableHtml += `<th>${key}</th>`;
+                // 添加表頭（第3行）
+                tableHtml += '<thead><tr>';
+                data[2].forEach(header => {
+                    tableHtml += `<th>${header}</th>`;
                 });
                 tableHtml += '</tr></thead><tbody>';
 
-                // 填充數據
-                data.forEach(row => {
+                // 添加前兩行（包括總分）
+                for (let i = 0; i < 2; i++) {
                     tableHtml += '<tr>';
-                    Object.values(row).forEach(value => {
-                        tableHtml += `<td>${value}</td>`;
+                    data[i].forEach(cell => {
+                        tableHtml += `<td>${cell}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                }
+
+                // 添加數據行
+                data.slice(3).forEach(row => {
+                    tableHtml += '<tr>';
+                    row.forEach(cell => {
+                        tableHtml += `<td>${cell}</td>`;
                     });
                     tableHtml += '</tr>';
                 });
@@ -113,7 +127,7 @@
             $('#name-select').on('change', function() {
                 const selectedName = $(this).val();
                 const filteredData = selectedName 
-                    ? fullData.filter(row => row['B'] === selectedName)
+                    ? [fullData[0], fullData[1], fullData[2], ...fullData.slice(3).filter(row => row[1] === selectedName)]
                     : fullData;
                 renderTable(filteredData);
             });
