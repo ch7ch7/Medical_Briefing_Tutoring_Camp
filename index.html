@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>學員積分表</title>
+    <title>醫學簡報家教營 學員積分查詢</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
@@ -10,8 +10,8 @@
 
     <script>
         $(document).ready(function() {
-            var sheetId = 'YOUR_SHEET_ID';
-            var apiKey = 'YOUR_API_KEY';
+            var sheetId = '1FHoKkVI47tX4xKpcpv8ttcYjKVsfkb3lhNfgizdZ3LA';
+            var apiKey = 'AIzaSyBcS5OCVziwMwRYxD61Uoj1Kb8XvEktDn0';
             var range = '學員積分表!A1:Z1000';  // 調整範圍以適應您的數據
 
             var url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
