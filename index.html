@@ -61,7 +61,7 @@
                 header: true,
                 complete: function(results) {
                     allData = results.data;
-                    filterColumn = Object.keys(allData[0])[1];  // 假設B列是第二列
+                    filterColumn = Object.keys(allData[0])[0];  // 假設B列是第二列
 
                     // 填充下拉選單
                     const uniqueValues = [...new Set(allData.map(item => item[filterColumn]))];
